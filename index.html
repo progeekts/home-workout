@@ -2,197 +2,250 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Entrenamiento Bandas Crivit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>CRIVIT Hypertrophy Tracker</title>
   <style>
     :root {
-      --bg: #121418;
-      --card: #1c2027;
-      --card-border: #2c3340;
+      --bg: #090b0e;
+      --card-bg: rgba(22, 27, 34, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #00f084;
+      --accent-glow: rgba(0, 240, 132, 0.25);
+      --accent-orange: #ff7b00;
       --text: #f0f3f6;
-      --muted: #8b949e;
-      --accent: #ff6a00;
-      --accent-hover: #e05d00;
-      --green: #2ea043;
+      --text-dim: #8b949e;
+      --border-radius: 16px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 16px; padding-bottom: 90px; }
-    header { text-align: center; margin-bottom: 20px; }
-    header h1 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); }
-    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-    .tab-btn { flex: 1; padding: 10px; border: 1px solid var(--card-border); background: var(--card); color: var(--text); border-radius: 8px; font-weight: 600; cursor: pointer; }
-    .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .exercise-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-    .exercise-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-    .exercise-title { font-size: 1rem; font-weight: bold; }
-    .exercise-target { font-size: 0.75rem; color: var(--muted); }
-    .exercise-desc { font-size: 0.8rem; color: #b1bac4; margin-bottom: 12px; line-height: 1.3; }
-    .config-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
-    .config-item label { display: block; font-size: 0.65rem; color: var(--muted); margin-bottom: 2px; }
-    .config-item input { width: 100%; background: #0f1115; border: 1px solid var(--card-border); color: #fff; border-radius: 6px; padding: 6px; font-size: 0.85rem; text-align: center; }
-    .series-tracker { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .btn-action { padding: 8px 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-    .btn-complete { background: var(--green); color: #fff; }
-    .btn-reset { background: #30363d; color: var(--muted); }
-    .sets-counter { font-size: 0.85rem; color: #fff; font-weight: 600; }
-    /* Timer Dock */
-    .timer-dock { position: fixed; bottom: 0; left: 0; right: 0; background: #161b22; border-top: 1px solid var(--card-border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
-    .timer-info { display: flex; align-items: baseline; gap: 8px; }
-    .timer-label { font-size: 0.75rem; color: var(--muted); }
-    .timer-value { font-size: 1.4rem; font-weight: bold; font-family: monospace; color: var(--accent); }
-    .timer-controls { display: flex; gap: 6px; }
-    .btn-timer { background: #21262d; border: 1px solid var(--card-border); color: #fff; border-radius: 6px; padding: 6px 12px; font-size: 0.75rem; cursor: pointer; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); padding: 18px; padding-bottom: 110px; min-height: 100vh; }
+
+    /* Top Bar */
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .logo-badge { background: linear-gradient(135deg, #1c222b, #12151b); border: 1px solid var(--card-border); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .global-reset { background: transparent; border: none; color: var(--text-dim); font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+
+    /* Mode Selector */
+    .tabs-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #13171f; padding: 4px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 22px; }
+    .tab-btn { padding: 12px; border: none; background: transparent; color: var(--text-dim); border-radius: 10px; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s ease; }
+    .tab-btn.active { background: #1f2633; color: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.35); }
+    .tab-btn.active.push { border-bottom: 2px solid var(--accent); }
+    .tab-btn.active.pull { border-bottom: 2px solid var(--accent-orange); }
+
+    /* Exercise Cards */
+    .exercise-card { background: var(--card-bg); backdrop-filter: blur(16px); border: 1px solid var(--card-border); border-radius: var(--border-radius); padding: 16px; margin-bottom: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+    .card-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+    .card-title { font-size: 1.05rem; font-weight: 700; color: #fff; }
+    .card-target { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px; }
+    .card-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.35; margin-bottom: 14px; }
+
+    /* Inline Controls */
+    .inputs-row { display: flex; gap: 8px; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 10px; margin-bottom: 14px; align-items: center; justify-content: space-between; }
+    .input-group { display: flex; align-items: center; gap: 6px; }
+    .input-group label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600; }
+    .input-group input { background: #1a202c; border: 1px solid var(--card-border); color: #fff; border-radius: 6px; padding: 4px 6px; font-size: 0.85rem; font-weight: 600; text-align: center; width: 54px; }
+
+    /* Interactive Sets Grid */
+    .sets-wrapper { display: flex; flex-wrap: wrap; gap: 8px; }
+    .set-pill { flex: 1; min-width: 50px; text-align: center; padding: 10px 4px; background: #161b22; border: 1px solid var(--card-border); border-radius: 10px; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); cursor: pointer; transition: all 0.15s ease; user-select: none; }
+    .set-pill.done { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+
+    /* Sticky Bottom Floating Bar */
+    .timer-panel { position: fixed; bottom: 16px; left: 16px; right: 16px; background: rgba(18, 22, 29, 0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 12px 32px rgba(0,0,0,0.6); z-index: 100; }
+    .timer-content { display: flex; flex-direction: column; }
+    .timer-caption { font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: var(--text-dim); letter-spacing: 0.5px; }
+    .timer-clock { font-size: 1.6rem; font-weight: 800; font-family: ui-monospace, SFMono-Regular, monospace; color: var(--accent); line-height: 1.1; }
+    .timer-actions { display: flex; gap: 6px; }
+    .btn-timer { background: #222936; border: 1px solid var(--card-border); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+    .btn-timer:active { transform: scale(0.96); }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Crivit Resistance Hub</h1>
+    <div class="logo-badge">Crivit Lab</div>
+    <button class="global-reset" onclick="resetDaySets()">Reiniciar día</button>
   </header>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchRoutine('push')">Día Empuje</button>
-    <button class="tab-btn" onclick="switchRoutine('pull')">Día Tirón</button>
+  <div class="tabs-nav">
+    <button class="tab-btn push active" onclick="setRoutine('push')">Empuje / Deltoides</button>
+    <button class="tab-btn pull" onclick="setRoutine('pull')">Tirón / Espalda</button>
   </div>
 
-  <main id="exercises-container"></main>
+  <main id="cards-container"></main>
 
-  <div class="timer-dock">
-    <div class="timer-info">
-      <span class="timer-label">Descanso:</span>
-      <span class="timer-value" id="timer-display">00:00</span>
+  <div class="timer-panel">
+    <div class="timer-content">
+      <span class="timer-caption">Descanso activo</span>
+      <span class="timer-clock" id="timer-clock">00:00</span>
     </div>
-    <div class="timer-controls">
-      <button class="btn-timer" onclick="addSeconds(30)">+30s</button>
-      <button class="btn-timer" onclick="stopTimer()">Reset</button>
+    <div class="timer-actions">
+      <button class="btn-timer" onclick="adjustTime(15)">+15s</button>
+      <button class="btn-timer" onclick="adjustTime(30)">+30s</button>
+      <button class="btn-timer" onclick="resetTimer()">Detener</button>
     </div>
   </div>
 
   <script>
-    const routines = {
+    const defaultData = {
       push: [
-        { id: "p1", name: "Flexiones en silla", target: "Pecho y tríceps", desc: "Manos al ancho de hombros sobre la silla. Bajada controlada en 3s.", sets: 4, reps: "8-12", rest: 90, completedSets: 0 },
-        { id: "p2", name: "Elevaciones laterales", target: "Deltoides lateral", desc: "Pisa la banda gris con 1 pie. Sube hasta altura de hombros sin balanceo.", sets: 3, reps: "12-15", rest: 60, completedSets: 0 },
-        { id: "p3", name: "Fondos en silla", target: "Tríceps", desc: "Manos al borde, rodillas a 90° para asistir el peso corporal. Codos a 90°.", sets: 3, reps: "8-10", rest: 75, completedSets: 0 },
-        { id: "p4", name: "Extensión tríceps sobre cabeza", target: "Tríceps", desc: "Pisa el extremo con el talón y empuja la banda larga hacia el techo.", sets: 3, reps: "12-15", rest: 60, completedSets: 0 }
+        { id: "e1", name: "Flexiones en silla", target: "Pecho y Tríceps", desc: "Baja el pecho al borde en 3 segundos excéntricos.", sets: 4, reps: "8-12", rest: 90, completed: 0 },
+        { id: "e2", name: "Elevaciones laterales", target: "Deltoides lateral", desc: "Pisa la banda gris de 250 cm con un pie. Codos semiflexionados.", sets: 3, reps: "12-15", rest: 60, completed: 0 },
+        { id: "e3", name: "Fondos en silla", target: "Tríceps", desc: "Rodillas dobladas a 90° para asistir la carga corporal.", sets: 3, reps: "8-10", rest: 75, completed: 0 },
+        { id: "e4", name: "Extensión tras nuca", target: "Tríceps", desc: "Pisa un extremo con el talón y extiende verticalmente.", sets: 3, reps: "12-15", rest: 60, completed: 0 }
       ],
       pull: [
-        { id: "r1", name: "Remo inclinado", target: "Espalda dorsal", desc: "Pisa el centro de la banda larga, torso a 45°. Pausa de 1s con codos atrás.", sets: 4, reps: "10-12", rest: 75, completedSets: 0 },
-        { id: "r2", name: "Band Pull-Aparts", target: "Hombro posterior", desc: "Banda a la altura del pecho; separa brazos juntando escápulas.", sets: 3, reps: "15-20", rest: 60, completedSets: 0 },
-        { id: "r3", name: "Curl de bíceps", target: "Bíceps", desc: "Pisa la banda larga con ambos pies. Baja en 3s sin despegar codos del costado.", sets: 3, reps: "10-12", rest: 60, completedSets: 0 },
-        { id: "r4", name: "Face Pull (media altura)", target: "Espalda alta y cuello", desc: "Ancla la banda a un pomo cerrado. Tira hacia la cara abriendo manos.", sets: 3, reps: "12-15", rest: 60, completedSets: 0 }
+        { id: "t1", name: "Remo con banda", target: "Dorsal y Espalda", desc: "Pisa el centro con torso a 45°. Aprieta 1s los codos atrás.", sets: 4, reps: "10-12", rest: 75, completed: 0 },
+        { id: "t2", name: "Band Pull-Aparts", target: "Deltoides posterior", desc: "Abre los brazos a la altura del pecho retrayendo escápulas.", sets: 3, reps: "15-20", rest: 60, completed: 0 },
+        { id: "t3", name: "Curl de bíceps", target: "Bíceps", desc: "Banda larga pisada. Mantén codos pegados al cuerpo, 3s de bajada.", sets: 3, reps: "10-12", rest: 60, completed: 0 },
+        { id: "t4", name: "Face Pull (pomo)", target: "Trapecio y Hombro post.", desc: "Banda fijada a un pomo cerrado. Tira hacia la cara separando manos.", sets: 3, reps: "12-15", rest: 60, completed: 0 }
       ]
     };
 
-    let activeRoutine = "push";
-    let timerInterval = null;
-    let secondsLeft = 0;
+    let currentRoutine = localStorage.getItem("crivit_routine") || "push";
+    let workoutData = JSON.parse(localStorage.getItem("crivit_data")) || defaultData;
+    let timerCountdown = null;
+    let remainingTime = 0;
 
-    function renderExercises() {
-      const container = document.getElementById("exercises-container");
+    function saveState() {
+      localStorage.setItem("crivit_data", JSON.stringify(workoutData));
+      localStorage.setItem("crivit_routine", currentRoutine);
+    }
+
+    function setRoutine(type) {
+      currentRoutine = type;
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.classList.contains(type));
+      });
+      saveState();
+      render();
+    }
+
+    function render() {
+      const container = document.getElementById("cards-container");
       container.innerHTML = "";
 
-      routines[activeRoutine].forEach((item, index) => {
+      workoutData[currentRoutine].forEach(item => {
         const card = document.createElement("div");
         card.className = "exercise-card";
+
+        let setsPillsHTML = "";
+        for (let i = 1; i <= item.sets; i++) {
+          const isDone = i <= item.completed;
+          setsPillsHTML += `<div class="set-pill ${isDone ? 'done' : ''}" onclick="toggleSet('${item.id}', ${i})">S${i}</div>`;
+        }
+
         card.innerHTML = `
-          <div class="exercise-header">
-            <span class="exercise-title">${item.name}</span>
-            <span class="exercise-target">${item.target}</span>
+          <div class="card-top">
+            <span class="card-title">${item.name}</span>
+            <span class="card-target">${item.target}</span>
           </div>
-          <div class="exercise-desc">${item.desc}</div>
-          <div class="config-grid">
-            <div class="config-item">
+          <div class="card-desc">${item.desc}</div>
+          <div class="inputs-row">
+            <div class="input-group">
               <label>Series</label>
-              <input type="number" value="${item.sets}" min="1" onchange="updateParam('${item.id}', 'sets', this.value)" />
+              <input type="number" min="1" max="8" value="${item.sets}" onchange="changeParam('${item.id}', 'sets', this.value)" />
             </div>
-            <div class="config-item">
+            <div class="input-group">
               <label>Reps</label>
-              <input type="text" value="${item.reps}" onchange="updateParam('${item.id}', 'reps', this.value)" />
+              <input type="text" value="${item.reps}" onchange="changeParam('${item.id}', 'reps', this.value)" />
             </div>
-            <div class="config-item">
-              <label>Descanso (s)</label>
-              <input type="number" value="${item.rest}" min="5" step="5" onchange="updateParam('${item.id}', 'rest', this.value)" />
-            </div>
-          </div>
-          <div class="series-tracker">
-            <span class="sets-counter" id="counter-${item.id}">Completadas: ${item.completedSets} / ${item.sets}</span>
-            <div>
-              <button class="btn-action btn-complete" onclick="markSet('${item.id}')">Hecha</button>
-              <button class="btn-action btn-reset" onclick="resetSets('${item.id}')">↻</button>
+            <div class="input-group">
+              <label>Desc (s)</label>
+              <input type="number" min="5" step="5" value="${item.rest}" onchange="changeParam('${item.id}', 'rest', this.value)" />
             </div>
           </div>
+          <div class="sets-wrapper">${setsPillsHTML}</div>
         `;
         container.appendChild(card);
       });
     }
 
-    function switchRoutine(type) {
-      activeRoutine = type;
-      document.querySelectorAll(".tab-btn").forEach((btn, i) => {
-        btn.classList.toggle("active", (i === 0 && type === "push") || (i === 1 && type === "pull"));
-      });
-      renderExercises();
-    }
-
-    function updateParam(id, field, value) {
-      const ex = routines[activeRoutine].find(e => e.id === id);
-      if (ex) {
-        ex[field] = field === "reps" ? value : parseInt(value) || 0;
-        document.getElementById(`counter-${id}`).innerText = `Completadas: ${ex.completedSets} / ${ex.sets}`;
+    function changeParam(id, key, val) {
+      const ex = workoutData[currentRoutine].find(x => x.id === id);
+      if (!ex) return;
+      if (key === "sets") {
+        ex.sets = Math.max(1, parseInt(val) || 1);
+        if (ex.completed > ex.sets) ex.completed = ex.sets;
+      } else if (key === "rest") {
+        ex.rest = Math.max(5, parseInt(val) || 30);
+      } else {
+        ex.reps = val;
       }
+      saveState();
+      render();
     }
 
-    function markSet(id) {
-      const ex = routines[activeRoutine].find(e => e.id === id);
-      if (ex && ex.completedSets < ex.sets) {
-        ex.completedSets++;
-        document.getElementById(`counter-${id}`).innerText = `Completadas: ${ex.completedSets} / ${ex.sets}`;
+    function toggleSet(id, setIndex) {
+      const ex = workoutData[currentRoutine].find(x => x.id === id);
+      if (!ex) return;
+
+      if (ex.completed === setIndex) {
+        ex.completed = setIndex - 1;
+      } else {
+        ex.completed = setIndex;
         startTimer(ex.rest);
       }
+      saveState();
+      render();
     }
 
-    function resetSets(id) {
-      const ex = routines[activeRoutine].find(e => e.id === id);
-      if (ex) {
-        ex.completedSets = 0;
-        document.getElementById(`counter-${id}`).innerText = `Completadas: 0 / ${ex.sets}`;
-      }
+    function resetDaySets() {
+      workoutData[currentRoutine].forEach(ex => ex.completed = 0);
+      saveState();
+      render();
     }
 
     function startTimer(seconds) {
-      clearInterval(timerInterval);
-      secondsLeft = parseInt(seconds);
-      updateTimerDisplay();
+      clearInterval(timerCountdown);
+      remainingTime = parseInt(seconds);
+      updateClockUI();
 
-      timerInterval = setInterval(() => {
-        secondsLeft--;
-        updateTimerDisplay();
-        if (secondsLeft <= 0) {
-          clearInterval(timerInterval);
-          if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+      timerCountdown = setInterval(() => {
+        remainingTime--;
+        updateClockUI();
+        if (remainingTime <= 0) {
+          clearInterval(timerCountdown);
+          notifyDone();
         }
       }, 1000);
     }
 
-    function addSeconds(sec) {
-      secondsLeft += sec;
-      updateTimerDisplay();
+    function adjustTime(amount) {
+      remainingTime = Math.max(0, remainingTime + amount);
+      updateClockUI();
     }
 
-    function stopTimer() {
-      clearInterval(timerInterval);
-      secondsLeft = 0;
-      updateTimerDisplay();
+    function resetTimer() {
+      clearInterval(timerCountdown);
+      remainingTime = 0;
+      updateClockUI();
     }
 
-    function updateTimerDisplay() {
-      const m = Math.floor(Math.max(0, secondsLeft) / 60).toString().padStart(2, "0");
-      const s = (Math.max(0, secondsLeft) % 60).toString().padStart(2, "0");
-      document.getElementById("timer-display").innerText = `${m}:${s}`;
+    function updateClockUI() {
+      const mins = Math.floor(Math.max(0, remainingTime) / 60).toString().padStart(2, "0");
+      const secs = (Math.max(0, remainingTime) % 60).toString().padStart(2, "0");
+      document.getElementById("timer-clock").innerText = `${mins}:${secs}`;
     }
 
-    renderExercises();
+    function notifyDone() {
+      if ("vibrate" in navigator) navigator.vibrate([250, 150, 250]);
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.6);
+      } catch (e) {}
+    }
+
+    setRoutine(currentRoutine);
   </script>
 </body>
 </html>
