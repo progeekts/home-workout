@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rutina Bandas Elásticas (A - N)</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #10b981;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      color: white;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      font-size: 1.7rem;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    /* Barra de control de modo */
+    .view-toggle {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background-color: white;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-accent {
+      background-color: var(--accent);
+      color: white;
+    }
+
+    /* MODO ENTRENAMIENTO ACTIVO */
+    #workout-panel {
+      display: none;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .timer-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 6px solid #e0e7ff;
+      border-top-color: var(--primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 20px auto;
+      font-size: 2.3rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .timer-circle span.label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .badge-letter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      background-color: #dbeafe;
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      margin-right: 8px;
+    }
+
+    /* FILTROS */
+    .filter-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .filter-btn {
+      padding: 6px 12px;
+      border-radius: 20px;
+      background-color: #e2e8f0;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    /* LISTA DE EJERCICIOS */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .card-muscle {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      background-color: #f1f5f9;
+      color: var(--muted);
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 0.9rem;
+      color: #475569;
+      margin-bottom: 12px;
+    }
+
+    .card-target {
+      font-size: 0.82rem;
+      background-color: #f8fafc;
+      padding: 8px;
+      border-left: 3px solid var(--primary);
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Rutina Guiada con Banda Elástica</h1>
+    <p>Ejercicios A - N adaptados a tu tabla ilustrada</p>
+  </header>
+
+  <div class="container">
+    <!-- Controles superiores -->
+    <div class="view-toggle">
+      <button class="btn btn-accent" id="start-workout-btn" onclick="startRoutine('all')">▶ Iniciar Rutina Completa</button>
+      <button class="btn btn-secondary" onclick="startRoutine('upper')">Brazos/Torso (A-G, K, L)</button>
+      <button class="btn btn-secondary" onclick="startRoutine('lower')">Piernas/Core (H-J, M, N)</button>
+    </div>
+
+    <!-- Panel de entrenamiento activo -->
+    <div id="workout-panel">
+      <span class="card-muscle" id="workout-phase">EN CURSO</span>
+      <h2 id="current-title" style="margin-top: 5px; font-size: 1.4rem;">Ejercicio A: Remo vertical al mentón</h2>
+      <p id="current-instructions" style="color: var(--muted); margin: 6px 0 16px; font-size: 0.95rem;"></p>
+      
+      <div class="timer-circle" id="timer-box">
+        <span id="timer-num">40</span>
+        <span class="label" id="timer-sub">Segundos</span>
+      </div>
+
+      <div style="margin-top: 12px; display: flex; justify-content: center; gap: 10px;">
+        <button class="btn btn-secondary" onclick="prevExercise()">⏮ Anterior</button>
+        <button class="btn btn-primary" id="pause-btn" onclick="togglePause()">Pausar</button>
+        <button class="btn btn-secondary" onclick="nextExercise()">Siguiente ⏭</button>
+        <button class="btn" style="background:#ef4444; color:white;" onclick="stopRoutine()">Detener</button>
+      </div>
+      <p style="margin-top: 14px; font-size: 0.85rem; color: var(--muted);" id="progress-indicator">Ejercicio 1 de 14</p>
+    </div>
+
+    <!-- Filtros de visualización rápida -->
+    <h3 style="margin-bottom: 12px; font-size: 1.1rem;">Lista de Ejercicios</h3>
+    <div class="filter-tags">
+      <button class="filter-btn active" onclick="filterCards('all', this)">Todos (A-N)</button>
+      <button class="filter-btn" onclick="filterCards('superior', this)">Tren Superior</button>
+      <button class="filter-btn" onclick="filterCards('inferior', this)">Tren Inferior y Core</button>
+    </div>
+
+    <!-- Rejilla con todas las fichas -->
+    <div class="grid" id="exercise-grid"></div>
+  </div>
+
+  <script>
+    // Catálogo completo de ejercicios basados exactamente en la guía A - N
+    const exercises = [
+      {
+        id: "A",
+        name: "Remo al mentón / Elevaciones frontales",
+        group: "superior",
+        muscle: "Deltoides (hombros) y trapecio",
+        desc: "Pisa la banda con ambos pies con las piernas separadas. Tira hacia arriba flexionando los codos hacia afuera hasta la altura del pecho.",
+        cue: "Mantén la espalda recta y sube guiando el movimiento con los codos."
+      },
+      {
+        id: "B",
+        name: "Curl de bíceps",
+        group: "superior",
+        muscle: "Bíceps braquial",
+        desc: "Pisa la goma con un pie o ambos. Mantén los codos pegados al cuerpo y flexiona los antebrazos hacia los hombros.",
+        cue: "Evita balancear el torso; controla la bajada de la goma."
+      },
+      {
+        id: "C",
+        name: "Elevación frontal unilateral / Tirón",
+        group: "superior",
+        muscle: "Hombro anterior y pectoral superior",
+        desc: "Pisa un extremo de la goma y eleva el brazo opuesto hacia el frente hasta la altura de los ojos.",
+        cue: "No arquees la zona lumbar al subir."
+      },
+      {
+        id: "D",
+        name: "Aperturas de pecho / Band Pull-Apart",
+        group: "superior",
+        muscle: "Pectorales, deltoides posterior y romboides",
+        desc: "Sostén la banda estirada al frente a la altura del pecho y sepárala abriendo los brazos en cruz.",
+        cue: "Junta las escápulas atrás al abrir la banda."
+      },
+      {
+        id: "E",
+        name: "Apertura posterior tras nuca",
+        group: "superior",
+        muscle: "Espalda alta y deltoides posteriores",
+        desc: "Sostén la banda elástica justo por encima o detrás de la cabeza y abre los brazos lateralmente hacia fuera.",
+        cue: "Mantén el cuello relajado y los hombros lejos de las orejas."
+      },
+      {
+        id: "F",
+        name: "Tirón diagonal / Espadachín",
+        group: "superior",
+        muscle: "Hombros, tríceps y estabilizadores de espalda",
+        desc: "Un brazo ancla la goma al pecho o cadera mientras el otro brazo estira en diagonal hacia arriba y afuera.",
+        cue: "Extiende el brazo con firmeza y controla el retorno."
+      },
+      {
+        id: "G",
+        name: "Elevaciones laterales en cruz",
+        group: "superior",
+        muscle: "Deltoides lateral (anchura de hombros)",
+        desc: "Pisa la banda con ambos pies cruzándola si necesitas más resistencia. Abre ambos brazos hacia los lados en forma de 'T'.",
+        cue: "Sube hasta la línea de los hombros sin elevar las trampas/cuello."
+      },
+      {
+        id: "H",
+        name: "Prensa de piernas tumbado (Leg Press)",
+        group: "inferior",
+        muscle: "Cuádriceps, glúteos e isquiotibiales",
+        desc: "Túmbate boca arriba, coloca la banda en la planta de un pie o ambos y empuja extendiendo las piernas hacia adelante/arriba.",
+        cue: "Empuja con el talón y mantén la espalda baja pegada a la colchoneta."
+      },
+      {
+        id: "I",
+        name: "Remo sentado",
+        group: "superior",
+        muscle: "Dorsales y espalda media",
+        desc: "Siéntate con las piernas semiextendidas, pasa la banda por los pies y tracciona llevando los codos hacia atrás pegados a las costillas.",
+        cue: "Saca pecho al tirar y no encorves la espalda."
+      },
+      {
+        id: "J",
+        name: "Patada de glúteo en cuadrupedia (Donkey Kick)",
+        group: "inferior",
+        muscle: "Glúteo mayor e isquios",
+        desc: "En posición de cuatro apoyos, sujeta la goma con las manos y la planta de un pie. Extiende la pierna hacia atrás completamente recta.",
+        cue: "Aprieta el glúteo en el punto de máxima extensión sin doblar la cintura."
+      },
+      {
+        id: "K",
+        name: "Rotadores externos de hombro",
+        group: "superior",
+        muscle: "Manguito rotador (infraespinoso / redondo menor)",
+        desc: "Con los codos flexionados a 90° y pegados a los costados, separa las manos hacia afuera tensionando la goma.",
+        cue: "Excelente para proteger los hombros. Mantén los codos pegados al cuerpo."
+      },
+      {
+        id: "L",
+        name: "Extensión de tríceps sobre la cabeza",
+        group: "superior",
+        muscle: "Tríceps braquial",
+        desc: "Una mano sujeta la banda en la espalda baja y la otra extiende el codo hacia el techo por detrás de la cabeza.",
+        cue: "Asegúrate de que el codo superior se mantenga apuntando hacia arriba."
+      },
+      {
+        id: "M",
+        name: "Patada de glúteo con flexión de 90°",
+        group: "inferior",
+        muscle: "Glúteos y cadena posterior",
+        desc: "Apoya los antebrazos y rodillas en el suelo. Con la banda en el pie, empuja la suela hacia el techo manteniendo la rodilla en ángulo de 90°.",
+        cue: "El movimiento nace de la cadera; empuja como si quisieras tocar el techo con la suela."
+      },
+      {
+        id: "N",
+        name: "Elevación lateral de pierna tumbado",
+        group: "inferior",
+        muscle: "Glúteo medio y abductores",
+        desc: "Tumbado de lado con la banda elástica en los tobillos o empeines, eleva la pierna superior sin girar la cadera hacia atrás.",
+        cue: "Mantén el cuerpo alineado y la punta del pie mirando ligeramente hacia el suelo."
+      }
+    ];
+
+    // RENDERIZAR FICHAS
+    const grid = document.getElementById('exercise-grid');
+
+    function renderCards(list) {
+      grid.innerHTML = "";
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "card";
+        card.innerHTML = `
+          <div>
+            <div class="card-header">
+              <span class="badge-letter">${item.id}</span>
+              <h4 class="card-title">${item.name}</h4>
+            </div>
+            <span class="card-muscle">${item.muscle}</span>
+            <p class="card-desc">${item.desc}</p>
+          </div>
+          <div class="card-target"><strong>Clave técnica:</strong> ${item.cue}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterCards(group, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (group === 'all') {
+        renderCards(exercises);
+      } else {
+        renderCards(exercises.filter(e => e.group === group));
+      }
+    }
+
+    // MOTOR DEL TEMPORIZADOR Y RUTINA
+    let activeQueue = [];
+    let currentIndex = 0;
+    let timeLeft = 40;
+    let isPaused = false;
+    let isRest = false;
+    let timerInterval = null;
+    const WORK_TIME = 40; // 40 seg de ejercicio
+    const REST_TIME = 20; // 20 seg de descanso
+
+    function playBeep(freq = 600, duration = 0.15) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        setTimeout(() => {
+          osc.stop();
+          audioCtx.close();
+        }, duration * 1000);
+      } catch (e) {
+        // Silencio si el navegador no permite audio automático
+      }
+    }
+
+    function startRoutine(mode) {
+      if (mode === 'all') activeQueue = [...exercises];
+      else if (mode === 'upper') activeQueue = exercises.filter(e => e.group === 'superior');
+      else if (mode === 'lower') activeQueue = exercises.filter(e => e.group === 'inferior');
+
+      currentIndex = 0;
+      isRest = false;
+      isPaused = false;
+      document.getElementById('workout-panel').style.display = 'block';
+      window.scrollTo({ top: 100, behavior: 'smooth' });
+      loadExercise();
+    }
+
+    function loadExercise() {
+      clearInterval(timerInterval);
+      const current = activeQueue[currentIndex];
+      
+      if (!isRest) {
+        timeLeft = WORK_TIME;
+        document.getElementById('workout-phase').innerText = "EN EJECUCIÓN";
+        document.getElementById('workout-phase').style.background = "#dcfce7";
+        document.getElementById('workout-phase').style.color = "#15803d";
+        document.getElementById('current-title').innerHTML = `<span class="badge-letter">${current.id}</span> ${current.name}`;
+        document.getElementById('current-instructions').innerText = `${current.desc} — ${current.cue}`;
+        document.getElementById('timer-box').style.borderTopColor = "var(--primary)";
+      } else {
+        timeLeft = REST_TIME;
+        document.getElementById('workout-phase').innerText = "DESCANSO";
+        document.getElementById('workout-phase').style.background = "#fee2e2";
+        document.getElementById('workout-phase').style.color = "#b91c1c";
+        document.getElementById('current-title').innerText = "¡Descansa y prepárate!";
+        document.getElementById('current-instructions').innerText = `Siguiente: (${current.id}) ${current.name}`;
+        document.getElementById('timer-box').style.borderTopColor = "#ef4444";
+      }
+
+      document.getElementById('progress-indicator').innerText = `Ejercicio ${currentIndex + 1} de ${activeQueue.length}`;
+      updateTimerDisplay();
+      runTimer();
+    }
+
+    function runTimer() {
+      timerInterval = setInterval(() => {
+        if (!isPaused) {
+          timeLeft--;
+          updateTimerDisplay();
+
+          if (timeLeft <= 3 && timeLeft > 0) playBeep(500, 0.1);
+          if (timeLeft === 0) {
+            playBeep(900, 0.4);
+            clearInterval(timerInterval);
+
+            if (!isRest) {
+              if (currentIndex < activeQueue.length - 1) {
+                isRest = true;
+                currentIndex++;
+                loadExercise();
+              } else {
+                alert("¡Felicidades! Has completado todos los ejercicios de la sesión.");
+                stopRoutine();
+              }
+            } else {
+              isRest = false;
+              loadExercise();
+            }
+          }
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      document.getElementById('timer-num').innerText = timeLeft;
+    }
+
+    function togglePause() {
+      isPaused = !isPaused;
+      document.getElementById('pause-btn').innerText = isPaused ? "Reanudar" : "Pausar";
+    }
+
+    function nextExercise() {
+      if (currentIndex < activeQueue.length - 1) {
+        currentIndex++;
+        isRest = false;
+        loadExercise();
+      }
+    }
+
+    function prevExercise() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        isRest = false;
+        loadExercise();
+      }
+    }
+
+    function stopRoutine() {
+      clearInterval(timerInterval);
+      document.getElementById('workout-panel').style.display = 'none';
+    }
+
+    // Inicializar catálogo al cargar
+    renderCards(exercises);
+  </script>
+</body>
+</html>
